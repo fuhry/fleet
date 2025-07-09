@@ -1000,7 +1000,10 @@ var scheduledQueryStats = DetailQuery{
 }
 
 var softwareLinux = DetailQuery{
-	Query: withCachedUsers(`WITH cached_users AS (%s)
+	Query: withCachedUsers(`
+CREATE TEMPORARY TABLE IF NOT EXISTS deb_packages AS SELECT '' as name, '' as version, '' as status WHERE 0;
+CREATE TEMPORARY TABLE IF NOT EXISTS pacman_packages AS SELECT '' as name, '' as version WHERE 0;
+WITH cached_users AS (%s)
 SELECT
   name AS name,
   version AS version,
@@ -1037,6 +1040,18 @@ SELECT
   arch AS arch,
   '' AS installed_path
 FROM rpm_packages
+UNION
+SELECT
+  name AS name,
+  version AS version,
+  '' AS extension_id,
+  '' AS browser,
+  'pacman_packages' AS source,
+  '' AS release,
+  '' AS vendor,
+  '' AS arch,
+  '' AS installed_path
+FROM pacman_packages
 UNION
 SELECT
   name AS name,
